@@ -1,219 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Benji's AI Lab — Week 3</title>
-<style>
-  /* ============================================================
-     STYLES — this is what makes the page look good.
-     You don't need to touch this in Week 3.
-     (But if you're curious: try changing --accent and refresh!)
-     ============================================================ */
-  :root {
-    --bg: #F4F6FB;
-    --card: #FFFFFF;
-    --ink: #1B1F2A;
-    --muted: #5A6272;
-    --accent: #4F46E5;      /* the main purple-blue */
-    --accent-dark: #3B34B8;
-    --highlight: #FFE24A;   /* highlighter yellow */
-    --ok: #16A34A;
-    --bad: #DC2626;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    line-height: 1.5;
-  }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 64px; }
+# Week 3 Template — Parent Setup Guide
 
-  .badge {
-    display: inline-block;
-    background: var(--ink);
-    color: var(--highlight);
-    font-weight: 800;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 999px;
-  }
-  h1 {
-    font-size: clamp(28px, 7vw, 40px);
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    margin: 10px 0 4px;
-  }
-  h1 .zap { color: var(--accent); }
-  .sub { color: var(--muted); margin: 0 0 24px; }
+Two files matter:
 
-  .mission {
-    background: var(--card);
-    border: 2px solid var(--ink);
-    border-radius: 14px;
-    padding: 16px 18px;
-    box-shadow: 4px 4px 0 var(--ink);
-    margin-bottom: 24px;
-  }
-  .mission h2 { margin: 0 0 6px; font-size: 16px; }
-  .mission p { margin: 6px 0; font-size: 14px; }
-  .mission code {
-    background: var(--highlight);
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-weight: 700;
-  }
+- **`index.html`** — Benji's file. The only one he touches. The `✏️ EDIT ZONE` (the `SYSTEM_PROMPT`) is his playground.
+- **`api/claude.js`** — your plumbing. A Vercel serverless function that holds the API key server-side so it's never exposed in the browser. Benji doesn't edit this in Week 3, but the comments explain it for when he's curious.
 
-  label { font-weight: 700; font-size: 14px; display: block; margin-bottom: 6px; }
-  textarea {
-    width: 100%;
-    min-height: 90px;
-    font: inherit;
-    padding: 12px;
-    border: 2px solid var(--ink);
-    border-radius: 12px;
-    resize: vertical;
-  }
-  textarea:focus { outline: 3px solid var(--accent); outline-offset: 2px; }
+## Setup (~15 min, do before Benji's session)
 
-  button {
-    margin-top: 12px;
-    width: 100%;
-    font: inherit;
-    font-weight: 800;
-    font-size: 17px;
-    color: #fff;
-    background: var(--accent);
-    border: 2px solid var(--ink);
-    border-radius: 12px;
-    padding: 14px;
-    cursor: pointer;
-    box-shadow: 4px 4px 0 var(--ink);
-    transition: transform 0.06s ease, box-shadow 0.06s ease;
-  }
-  button:hover { background: var(--accent-dark); }
-  button:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
-  button:disabled { opacity: 0.6; cursor: wait; }
-  button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+1. **API key**: console.anthropic.com → API Keys → create one named `benji-course`. Then **Settings → Limits → set a monthly spend limit** (~$5). The proxy also caps message sizes and response length, so runaway costs are basically impossible.
+2. **Repo**: push this folder to a new GitHub repo (this can be under your account for now — Benji creates his own in Week 4 and forks/copies it, which is a nice lesson in itself).
+3. **Deploy**: vercel.com → Add New Project → import the repo → before deploying, add environment variable `ANTHROPIC_API_KEY` = your key → Deploy. No build settings needed; Vercel auto-detects the static page + API function.
+4. Open the live URL, ask it something, confirm you get an answer.
 
-  .answer {
-    margin-top: 24px;
-    background: var(--card);
-    border: 2px solid var(--ink);
-    border-radius: 14px;
-    padding: 16px 18px;
-    min-height: 80px;
-    white-space: pre-wrap;
-  }
-  .answer.empty { color: var(--muted); font-style: italic; }
-  .answer.error { border-color: var(--bad); color: var(--bad); }
-  .thinking { color: var(--accent); font-weight: 700; }
-</style>
-</head>
-<body>
-<div class="wrap">
+> **Local option:** `npx vercel dev` in this folder runs it on your machine (it will pull the env var after you link the project). Honestly, deploying straight to Vercel and iterating on the live URL is easier — pushes redeploy automatically.
 
-  <span class="badge">Week 3 · Lab</span>
-  <h1>Benji's AI Lab <span class="zap">⚡</span></h1>
-  <p class="sub">Same AI brain you've been chatting with — but now YOU control it with code.</p>
+## Test checklist (5 min, before he sees it)
 
-  <div class="mission">
-    <h2>🎯 Your mission</h2>
-    <p>1. Type something in the box and press the button. See what comes back.</p>
-    <p>2. Open this file in your editor and find the <code>✏️ EDIT ZONE</code>.</p>
-    <p>3. Change the AI's personality by editing <strong>only that text</strong>. Save, refresh, try again.</p>
-  </div>
+- [ ] Ask a normal question → get a "beep boop" style answer
+- [ ] Empty box + button → friendly error, no crash
+- [ ] Edit the SYSTEM_PROMPT to something silly, push, refresh → personality changes
+- [ ] Airplane-mode your wifi mid-request → readable error message
 
-  <label for="userMessage">Say something to the AI:</label>
-  <textarea id="userMessage" placeholder="Try: What should I have for breakfast?"></textarea>
-  <button id="askButton">Ask the AI 🚀</button>
+## Running the session
 
-  <div id="answer" class="answer empty">The AI's answer will show up here…</div>
+1. Don't explain first — let him type a question and hit the button. Magic before mechanics.
+2. Then open `index.html` together and read from the top. Stop at the EDIT ZONE.
+3. He edits the personality, saves, refreshes. That loop — *edit → save → refresh → different behavior* — is the entire lesson.
+4. **Challenge (his solo session):** make the AI answer as three different personalities of his choosing, by editing only the EDIT ZONE. Ideas if he's stuck: pirate, sports commentator, extremely dramatic Shakespeare actor, an AI that answers only in questions.
 
-</div>
+## What to say if he asks "what's the stuff below the edit zone?"
 
-<script>
-/* ==============================================================
-   THE CODE — read it top to bottom, it's shorter than you think.
-   ============================================================== */
+"That's the delivery system — it carries your instructions to the AI and brings the answer back. You'll build one yourself in a few weeks." Resist explaining `async/await`. Week 3 wins if he leaves thinking *I changed how an AI behaves by editing code.*
 
+## Cost reality check
 
-/* ╔════════════════════════════════════════════════════════════╗
-   ║                                                            ║
-   ║   ✏️  EDIT ZONE — THIS PART IS YOURS                       ║
-   ║                                                            ║
-   ║   This text is called a SYSTEM PROMPT. It's the AI's       ║
-   ║   job description — it obeys this before anything else.    ║
-   ║                                                            ║
-   ║   Change the words between the backticks (` `), save       ║
-   ║   the file, refresh the page, and ask again.               ║
-   ║                                                            ║
-   ╚════════════════════════════════════════════════════════════╝ */
-
-const SYSTEM_PROMPT = `You are a helpful robot assistant for a 13-year-old
-named Benji. Keep your answers short — 3 sentences max — and end every
-answer with a robot noise like "beep boop".`;
-
-/* ╔════════════════════════════════════════════════════════════╗
-   ║   END OF EDIT ZONE — everything below makes the page work. ║
-   ║   You'll understand all of it by Week 6. Promise.          ║
-   ╚════════════════════════════════════════════════════════════╝ */
-
-
-// Grab the three things on the page we need to control:
-const askButton = document.getElementById("askButton");
-const userMessage = document.getElementById("userMessage");
-const answerBox = document.getElementById("answer");
-
-// This runs every time the button is clicked:
-askButton.addEventListener("click", askTheAI);
-
-async function askTheAI() {
-  const question = userMessage.value.trim();
-  if (!question) {
-    answerBox.className = "answer error";
-    answerBox.textContent = "Type something first! The AI can't read minds. Yet.";
-    return;
-  }
-
-  // Show that we're working on it:
-  askButton.disabled = true;
-  answerBox.className = "answer";
-  answerBox.innerHTML = '<span class="thinking">🤔 The AI is thinking…</span>';
-
-  try {
-    // This sends your question to OUR server (the file in /api),
-    // which passes it to the AI and sends the answer back.
-    const response = await fetch("/api/claude", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system: SYSTEM_PROMPT,   // ← your edit zone text goes here!
-        message: question
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Something went wrong on the server.");
-    }
-
-    // Put the AI's answer on the page:
-    answerBox.className = "answer";
-    answerBox.textContent = data.answer;
-
-  } catch (err) {
-    answerBox.className = "answer error";
-    answerBox.textContent = "😵 Error: " + err.message;
-  }
-
-  askButton.disabled = false;
-}
-</script>
-</body>
-</html>
+Each question costs a fraction of a cent. If he asked it 1,000 questions this week, you'd spend roughly a dollar. The $5 cap is a seatbelt, not a budget.
